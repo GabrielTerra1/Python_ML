@@ -1,0 +1,33 @@
+import math
+class shifted_massive:
+    def __init__ (self, size, list):
+        self.size = size
+        self.list = [0]*(size)
+    def fillarray (self):
+        for i in range (0, self.size):
+            self.list[i] = i
+    def get_arr (self):
+        print (self.list)
+    def shift(self, l):
+        temp = self.list[0]
+        for i in range(0, l-1):
+            self.list[i] = self.list[i+1]
+        self.list[l-1] = temp
+    def permutation(self):
+        k = self.size-1
+        count = 2
+        self.get_arr()
+        self.shift(self.size)
+        self.get_arr()
+        while k!=0:
+            self.shift(k+1)
+            if self.list[k] != k:
+                self.get_arr()
+                k = self.size-1
+                count+=1
+            else:
+                k = k-1
+        print(count)
+a = shifted_massive(int(input()), 0)
+a.fillarray()
+a.permutation()
