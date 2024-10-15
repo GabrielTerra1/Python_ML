@@ -1,0 +1,61 @@
+import numpy as np
+##import matplotlib as mpl
+#import mpl.pyplot as plt
+import random
+possible_list = [1, -1]
+number_monte_karlo = 10000
+T = 2.2
+H1 = 0
+Matrix_scale = 10
+Izyng_Matrix = np.zeros([Matrix_scale, Matrix_scale], dtype=int)
+for i in range(Matrix_scale):
+    for k in range(Matrix_scale):
+        Izyng_Matrix[i, k] = random.choice(possible_list)
+print(Izyng_Matrix)
+def Hamiltonian (matrix, scale):
+    M = 0
+    E = 0
+    if scale == 2:
+        E = matrix[0,0]*matrix[0,1]+matrix[0,0]*matrix[1, 0]+matrix[0,1]*matrix[1,1]+matrix[1,0]*matrix[1,1]
+    else:
+        for i in range(scale):
+            for j in range(scale):
+                M = M+Izyng_Matrix[i, j]
+                if j == scale-1:
+                    E = E+(matrix[i, 0]*matrix[i, j])
+                else:
+                    E = E+(matrix[i, j]*matrix[i, j+1])
+        for i in range(scale):
+            for j in range(scale):
+                if i == scale-1:
+                    E = E+(matrix[0, j]*matrix[i, j])
+                else:
+                    E = E+(matrix[i, j]*matrix[i+1, j])
+    return E
+def permutation(matrix, scale):
+    i = random.randint(0, scale-1)
+    j = random.randint(0, scale-1)
+    a = matrix[i, j] 
+    if a == -1:
+        a = 1
+    elif a == 1:
+        a = -1
+    matrix[i, j] = a
+H1 = Hamiltonian(Izyng_Matrix, Matrix_scale)
+print (H1)
+for i in range(number_monte_karlo):
+    permutation(Izyng_Matrix, Matrix_scale)
+    H2 = Hamiltonian(Izyng_Matrix, Matrix_scale)
+    if H2<=H1:
+        H1 = H2
+    elif H2>H1:
+        p = np.exp(-(H2-H1)/T)
+        b = random.random()
+        if b>p:
+            H2 = H1
+    if i % 1000 == 0:
+        print (Izyng_Matrix)
+        print (H1)
+    
+    
+    
