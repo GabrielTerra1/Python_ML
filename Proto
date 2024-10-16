@@ -1,0 +1,18 @@
+def I_finder(x, y, mx, my, q):
+  Icos = 0
+  Isin = 0
+  for i in range (len(mx)):
+    for j in range (len(mx)):
+      cosx = np.cos(q[0]*(x[j]-x[i])+q[1]*(y[j]-y[i]))
+      isinx = np.sin(q[0]*(x[j]-x[i])+q[1]*(y[j]-y[i]))
+      Icos += (mx[i]*mx[j] + my[i]*my[j])*cosx
+      Isin += (mx[i]*mx[j] + my[i]*my[j])*isinx
+  Icos = Icos/len(mx)
+  Isin = Isin/len(mx)
+  return Icos, Isin
+qspace = np.linspace(qmin,qmax,int((qmax-qmin)/dq+1))
+QX,QY = np.meshgrid(qspace, qspace)
+for i in range (len(QX)):
+    q = [QX[i], QY[i]]
+    a = I_finder(x, y, mx, my, q)    
+plt.pcolormesh([q[0], q[1], a])
