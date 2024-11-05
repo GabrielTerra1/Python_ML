@@ -1,0 +1,57 @@
+import random
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+random.random()
+def Hamiltonian(lst):    
+  H = 0
+    for i in range(len(lst)):         
+      for j in range(len(lst)-1):
+            H += lst[i][j] * lst[i][j+1]             
+            H += np.transpose(lst)[i][j] * np.transpose(lst)[i][j+1]
+            H += lst[i][0] * lst[i][-1]
+          H += np.transpose(lst)[i][0] * np.transpose(lst)[i][-1]    
+        return H
+def m(lst):
+    M = 0    
+    for i in range(len(lst)):
+        for j in range(len(lst)):            
+          M += lst[i][j]
+    return Mdef create_mat(n):
+    lst = np.zeros([n, n], dtype = int)    
+    for i in range(n):
+        for j in range(n):            
+          lst[i][j] = random.choice((-1, 1))
+    return lst
+n = int(input())l = create_mat(n)
+H1, M1 = Hamiltonian(l), m(l)c = 0
+mon_car_step = 100
+lst2 = np.zeros([mon_car_step], dtype = float)
+lst3 = np.zeros([mon_car_step], dtype = float)
+lst4 = np.array([])
+for T in np.arange(1.0, 2.6, 0.1):    
+  while c != mon_car_step:
+        c += 1        
+        random.random()
+        i = random.randint(0, len(l)-1)        
+        j = random.randint(0, len(l)-1)
+        H1 = Hamiltonian(l)        
+        l[i][j] *= -1
+        H2 = Hamiltonian(l)        
+        lst2[c-1] = H1**2
+        lst3[c-1] = H1        
+        #print(f"{l}\n")
+        if H2 - H1 <= 0:
+          pass        
+        else:
+          P = np.exp((-(H2-H1)/T))            
+          b = random.uniform(0, 1)
+          if b > P:                
+            #print(b, P)
+            l[i][j] *= -1            
+          else:
+            pass    
+            C = ((np.mean(lst2))-((np.mean(lst3))**2))/(T**2)
+    print(C)    lst4 = np.append(lst4, C)
+lst5 = np.arange(1, 2.6, 0.1)print(l)
+print(lst4)plt.scatter(lst5, lst4)
