@@ -1,61 +1,83 @@
-import numpy as np
-##import matplotlib as mpl
-#import mpl.pyplot as plt
 import random
-possible_list = [1, -1]
-number_monte_karlo = 10000
-T = 2.2
-H1 = 0
-Matrix_scale = 10
-Izyng_Matrix = np.zeros([Matrix_scale, Matrix_scale], dtype=int)
-for i in range(Matrix_scale):
-    for k in range(Matrix_scale):
-        Izyng_Matrix[i, k] = random.choice(possible_list)
-print(Izyng_Matrix)
-def Hamiltonian (matrix, scale):
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import math
+
+random.random()
+
+
+def Hamiltonian(mas):
+    summ = 0
+    for i in range(len(mas)):
+        for j in range(len(mas) - 1):
+            summ += mas[i][j] * mas[i][j + 1] + mas.T[i][j] * mas.T[i][j + 1]
+        summ += mas[i][0] * mas[i][len(mas) - 1] + mas.T[i][0] * mas.T[i][len(mas.T) - 1]
+    return -summ
+
+
+def magnetisation(lst):
     M = 0
-    E = 0
-    if scale == 2:
-        E = matrix[0,0]*matrix[0,1]+matrix[0,0]*matrix[1, 0]+matrix[0,1]*matrix[1,1]+matrix[1,0]*matrix[1,1]
+    for i in range(len(lst)):
+        for j in range(len(lst)):
+            M += lst[i][j]
+    return M
+
+
+def create_mat(n):
+    lst = np.zeros([n, n], dtype=int)
+    for i in range(n):
+        for j in range(n):
+            lst[i][j] = random.choice((-1, 1))
+    return lst
+
+
+def one_mon_car_step(lst, T):
+    H1 = Hamiltonian(lst)
+    i = random.randint(0, len(lst) - 1)
+    j = random.randint(0, len(lst) - 1)
+    lst[i, j] *= -1
+    H2 = Hamiltonian(lst)
+    if (H2 - H1) < 0:
+        return H1
     else:
-        for i in range(scale):
-            for j in range(scale):
-                M = M+Izyng_Matrix[i, j]
-                if j == scale-1:
-                    E = E+(matrix[i, 0]*matrix[i, j])
-                else:
-                    E = E+(matrix[i, j]*matrix[i, j+1])
-        for i in range(scale):
-            for j in range(scale):
-                if i == scale-1:
-                    E = E+(matrix[0, j]*matrix[i, j])
-                else:
-                    E = E+(matrix[i, j]*matrix[i+1, j])
-    return E
-def permutation(matrix, scale):
-    i = random.randint(0, scale-1)
-    j = random.randint(0, scale-1)
-    a = matrix[i, j] 
-    if a == -1:
-        a = 1
-    elif a == 1:
-        a = -1
-    matrix[i, j] = a
-H1 = Hamiltonian(Izyng_Matrix, Matrix_scale)
-print (H1)
-for i in range(number_monte_karlo):
-    permutation(Izyng_Matrix, Matrix_scale)
-    H2 = Hamiltonian(Izyng_Matrix, Matrix_scale)
-    if H2<=H1:
-        H1 = H2
-    elif H2>H1:
-        p = np.exp(-(H2-H1)/T)
+        p = np.exp(-(H2 - H1) / T)
         b = random.random()
-        if b>p:
-            H2 = H1
-    if i % 1000 == 0:
-        print (Izyng_Matrix)
-        print (H1)
-    
-    
-    
+        if b > p:
+            lst[i, j] *= -1
+        else:
+            return H1
+
+
+def one_temperature_iteration(mon_car_step, lst, T):
+    data_1 = np.array([])
+    data_2 = np.array([])
+    c = 0
+    while c != mon_car_step:
+      c += 1
+      H1 = one_mon_car_step(lst, T)
+      if not H1: continue
+      M = magnetisation(lst)
+      data_1 = np.append(data_1, M**4)
+      data_2 = np.append(data_2, M**2)
+    U = 1 - np.mean(data_1)/(3*(np.mean(data_2))**2)
+    return U
+def one_u_scale(lst, temps, mon_car_step):
+  means = np.array([])
+  for T in temps:
+    l = lst
+    U = one_temperature_iteration(mon_car_step, l, T)
+    means = np.append(means, U)
+  return means
+
+lst1 = create_mat(10)
+lst2 = create_mat(20)
+lst3 = create_ma
+mon_car_step1 = 5000
+mon_car_step2 = 10000
+temps = np.linspace(2, 3, 20)
+means1 = one_u_scale(lst1, temps, mon_car_step1)
+means2 = one_u_scale(lst2, temps, mon_car_step2)
+plt.plot(temps, means1)
+plt.plot(temps, means2)
+plt.show()
