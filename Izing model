@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import math
+from numba import jit
 
-random.random()
-
-
+@jit(nopython=True, parallel=True)
 def Hamiltonian(mas):
     summ = 0
     for i in range(len(mas)):
@@ -30,7 +29,6 @@ def create_mat(n):
         for j in range(n):
             lst[i][j] = random.choice((-1, 1))
     return lst
-
 
 def one_mon_car_step(lst, T):
     H1 = Hamiltonian(lst)
@@ -62,6 +60,8 @@ def one_temperature_iteration(mon_car_step, lst, T):
       data_2 = np.append(data_2, M**2)
     U = 1 - np.mean(data_1)/(3*(np.mean(data_2))**2)
     return U
+
+
 def one_u_scale(lst, temps, mon_car_step):
   means = np.array([])
   for T in temps:
@@ -70,14 +70,28 @@ def one_u_scale(lst, temps, mon_car_step):
     means = np.append(means, U)
   return means
 
-lst1 = create_mat(10)
-lst2 = create_mat(20)
-lst3 = create_ma
+means_means = np.array([]) 
+#lst2 = create_mat(20)
+#lst3 = create_mat(30)
 mon_car_step1 = 5000
-mon_car_step2 = 10000
-temps = np.linspace(2, 3, 20)
-means1 = one_u_scale(lst1, temps, mon_car_step1)
-means2 = one_u_scale(lst2, temps, mon_car_step2)
-plt.plot(temps, means1)
+#mon_car_step2 = 10000
+#mon_car_step3 = 20000
+temps1 = np.linspace(2.19, 2.30, 30)
+#temps2 = np.linspace(2.19, 2.30, 15)
+#temps3 = np.linspace(2.19, 2.30, 10)
+for i in range(10):
+  lst1 = create_mat(10)
+  means1 = one_u_scale(lst1, temps1, mon_car_step1)
+  means_means = np.append(means_means, means1)
+means_means = np.reshape(means_means, (10, 30))
+#means1 = one_u_scale(lst1, temps1, mon_car_step1)
+#means2 = one_u_scale(lst2, temps2, mon_car_step2)
+#means3 = one_u_scale(lst3, temps3, mon_car_step3)
+#plt.plot(temps1, means1)
+#plt.plot(temps2, means2)
+#plt.plot(temps3, means3)
+#plt.show()
+
+
 plt.plot(temps, means2)
 plt.show()
